@@ -15,6 +15,8 @@ export interface AuthLibraryProps {
   onActionCompleted?: (action: 'login' | 'register' | 'forgot-password') => void;
   /** Logo opcional para mostrar arriba */
   logoUrl?: string;
+  /** ID del comercio (solo para clientes de portal — no usar en login de usuarios tradicionales) */
+  commerceId?: string;
 }
 
 export const AuthComponent: React.FC<AuthLibraryProps> = ({
@@ -22,7 +24,8 @@ export const AuthComponent: React.FC<AuthLibraryProps> = ({
   platformURL,
   processOnSuccess,
   onActionCompleted,
-  logoUrl
+  logoUrl,
+  commerceId
 }) => {
   // Estados de UI
   const [tab, setTab] = useState<'login' | 'register' | 'forgot-password'>('login');
@@ -97,7 +100,8 @@ export const AuthComponent: React.FC<AuthLibraryProps> = ({
     const url = `${backendUrl}/auths/${endpoint}`;
 
     try {
-      const response = await axios.post(url, formData);
+      const body = commerceId ? { ...formData, commerceId } : { ...formData };
+      const response = await axios.post(url, body);
 
       if (tab === 'register') {
         setModalMessage('Cuenta creada con éxito. Revisa tu correo para verificar.');
