@@ -17,6 +17,8 @@ export interface AuthLibraryProps {
   logoUrl?: string;
   /** ID del comercio (solo para clientes de portal — no usar en login de usuarios tradicionales) */
   commerceId?: string;
+  /** Permite mostrar y usar el flujo de registro */
+  allowRegister?: boolean;
 }
 
 export const AuthComponent: React.FC<AuthLibraryProps> = ({
@@ -25,7 +27,8 @@ export const AuthComponent: React.FC<AuthLibraryProps> = ({
   processOnSuccess,
   onActionCompleted,
   logoUrl,
-  commerceId
+  commerceId,
+  allowRegister = true
 }) => {
   // Estados de UI
   const [tab, setTab] = useState<'login' | 'register' | 'forgot-password'>('login');
@@ -67,6 +70,12 @@ export const AuthComponent: React.FC<AuthLibraryProps> = ({
     }
   }, [onActionCompleted, processOnSuccess]);
 
+  useEffect(() => {
+    if (!allowRegister && tab === 'register') {
+      setTab('login');
+    }
+  }, [allowRegister, tab]);
+
   // -----------------------------------------------------------------------
   // 2. MANEJO DE LOGIN CON GOOGLE (Redirección Centralizada)
   // -----------------------------------------------------------------------
@@ -95,6 +104,13 @@ export const AuthComponent: React.FC<AuthLibraryProps> = ({
     e.preventDefault();
     setLoading(true);
     setErrorMessage(null);
+
+    if (!allowRegister && tab === 'register') {
+      setErrorMessage('El registro no está disponible en este sitio.');
+      setLoading(false);
+      setTab('login');
+      return;
+    }
     
     const endpoint = tab === 'login' ? 'login' : 'register';
     const url = `${backendUrl}/auths/${endpoint}`;
@@ -128,10 +144,9 @@ export const AuthComponent: React.FC<AuthLibraryProps> = ({
     setLoading(true);
     setErrorMessage(null);
     try {
-      await axios.post(`${backendUrl}/auths/forgot-password`, { 
-        email: formData.email, 
-        platformURL: platformURL 
-      });
+      const body: Record<string, string> = { email: formData.email, platformURL: platformURL };
+      if (commerceId) body.commerceId = commerceId;
+      await axios.post(`${backendUrl}/auths/forgot-password`, body);
       onActionCompleted?.('forgot-password');
       setModalMessage('Si el correo existe, recibirás un enlace de recuperación en breve.');
       setModalMessageOpen(true);
@@ -181,7 +196,9 @@ export const AuthComponent: React.FC<AuthLibraryProps> = ({
           {/* Tabs Selector */}
           {tab !== 'forgot-password' && (
             <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
-              {(['login', 'register'] as const).map((t) => (
+              {(['login', 'register'] as const)
+                .filter((t) => allowRegister || t === 'login')
+                .map((t) => (
                 <button
                   key={t}
                   onClick={() => { setTab(t); setErrorMessage(null); }}
