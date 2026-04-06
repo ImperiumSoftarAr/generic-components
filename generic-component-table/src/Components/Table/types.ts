@@ -17,6 +17,12 @@ export interface Column<T = any> {
   filterType?: 'text' | 'select';
   filterOptions?: { value: string; label: string }[];
   fixed?: 'left' | 'right';
+  /** Mobile card: marks this column as the card title/header */
+  mobileIsTitle?: boolean;
+  /** Mobile card: whether this column appears in the card body (default: first 3 non-title cols) */
+  mobileVisible?: boolean;
+  /** Mobile card: shorter label to use instead of `title` */
+  mobileLabel?: string;
 }
 
 // Filter configuration
@@ -54,6 +60,7 @@ export interface DataTableProps<T extends BaseEntity> {
   onEdit?: (record: T) => void;
   onDelete?: (record: T) => void;
   onView?: (record: T) => void;
+  viewActionLabel?: string;
   onExport?: () => void;
   onPrint?: () => void;
   onFilter?: (filters: Record<string, any>) => void;

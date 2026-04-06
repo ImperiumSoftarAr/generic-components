@@ -26,12 +26,13 @@ export const GoogleLoginWrapper: React.FC<GoogleLoginWrapperProps> = ({
 
   const loginWithGoogle = useGoogleLogin({
     flow: 'auth-code',
-    onSuccess: async ({ code }) => {
+    onSuccess: async (response: { code?: string } | Record<string, unknown>) => {
       setLoading(true);
       try {
-        const response = await axios.post(`${backendUrl}/auths/google`, { data: code });
+        const code = typeof response.code === 'string' ? response.code : '';
+        const apiResponse = await axios.post(`${backendUrl}/auths/google`, { data: code });
         onActionCompleted?.('login');
-        processOnSuccess(response.data);
+        processOnSuccess(apiResponse.data);
       } catch (error) {
         setErrorMessage('Error al iniciar sesión con Google. Inténtalo nuevamente.');
         console.error(error);
@@ -40,7 +41,7 @@ export const GoogleLoginWrapper: React.FC<GoogleLoginWrapperProps> = ({
         setTab('login');
       }
     },
-    onError: (error) => {
+    onError: (error: unknown) => {
       setErrorMessage('Error al iniciar sesión con Google.');
       console.error(error);
     },

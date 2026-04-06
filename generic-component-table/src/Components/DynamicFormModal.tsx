@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-interface FormField {
+export interface FormField {
   name: string;
   label: string;
   type?: 'text' | 'textarea' | 'select' | 'multiselect' | 'toggle' | 'checkbox' | 'number' | 'url' | 'custom';
@@ -19,7 +19,17 @@ interface FormField {
   }) => React.ReactNode;
 }
 
-interface DynamicFormModalProps {
+export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
+
+const SIZE_CLASSES: Record<ModalSize, string> = {
+  sm:   'max-w-sm',
+  md:   'max-w-2xl',   // default — comportamiento original
+  lg:   'max-w-4xl',
+  xl:   'max-w-6xl',
+  full: 'max-w-[98vw]',
+};
+
+export interface DynamicFormModalProps {
   open: boolean;
   onClose: () => void;
   title: string;
@@ -27,6 +37,8 @@ interface DynamicFormModalProps {
   defaultValues?: Record<string, unknown>;
   onSubmit: (data: Record<string, unknown>) => Promise<void>;
   isLoading?: boolean;
+  /** Controla el ancho del modal. Default: 'md' (max-w-2xl) */
+  size?: ModalSize;
   // Nuevo: slot para campos adicionales (renderizado después de fields)
   children?: (props: {
     formData: Record<string, unknown>;
@@ -44,7 +56,8 @@ export const DynamicFormModal: React.FC<DynamicFormModalProps> = ({
   defaultValues = {},
   onSubmit,
   isLoading = false,
-  children, // Nuevo
+  size = 'md',
+  children,
 }) => {
   const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -293,7 +306,7 @@ export const DynamicFormModal: React.FC<DynamicFormModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
+      <div className={`bg-white rounded-lg ${SIZE_CLASSES[size]} w-full max-h-[90vh] overflow-y-auto shadow-xl`}>
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">{title}</h2>

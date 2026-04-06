@@ -1,12 +1,14 @@
 {
   "name": "generic-component-table",
   "private": false,
-  "version": "1.0.8",
+  "version": "1.2.1",
   "type": "module",
   "main": "./dist/generic-component-table.umd.js",
   "module": "./dist/generic-component-table.es.js",
-  "types": "./dist/index.d.ts", 
-  "files": ["dist"],
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -22,8 +24,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-oauth/google": "^0.12.2",
+    "axios": "^1.11.0",
     "browser-image-compression": "^2.0.2",
     "clsx": "^2.1.1",
+    "lucide-react": "^0.542.0",
     "react-easy-crop": "^5.5.3"
   },
   "devDependencies": {

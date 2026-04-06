@@ -1,5 +1,5 @@
 import React from 'react';
-import { PaginationInfo } from './types';
+import type { PaginationInfo } from './types';
 
 interface PaginationProps extends PaginationInfo {
   onPageChange: (page: number) => void;

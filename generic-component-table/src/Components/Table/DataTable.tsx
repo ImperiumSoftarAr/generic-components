@@ -1,5 +1,7 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { DataTableProps, BaseEntity } from './types';
+import useIsMobile from '../../utils/useIsMobile';
+import CardView from './CardView';
 
 const DataTable = <T extends BaseEntity>({
   data,
@@ -12,6 +14,7 @@ const DataTable = <T extends BaseEntity>({
   onEdit,
   onDelete,
   onView,
+  viewActionLabel = 'Ver',
   onExport,
   onPrint,
   onFilter,
@@ -26,6 +29,7 @@ const DataTable = <T extends BaseEntity>({
   filterMode = 'server',
   externalFilters = {}
 }: DataTableProps<T>) => {
+  const isMobile = useIsMobile();
   const [searchDraft, setSearchDraft] = useState('');
   const [filters, setFilters] = useState<Record<string, string>>(externalFilters);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
@@ -74,7 +78,7 @@ const DataTable = <T extends BaseEntity>({
 
   const handleSort = (key: string) => {
     setSortConfig(cur => {
-      const next = cur?.key === key
+      const next: { key: string; direction: 'asc' | 'desc' } = cur?.key === key
         ? { key, direction: cur.direction === 'asc' ? 'desc' : 'asc' }
         : { key, direction: 'asc' };
       if (filterMode === 'server') {
@@ -223,6 +227,22 @@ const DataTable = <T extends BaseEntity>({
         </div>
       )}
 
+      {isMobile ? (
+        <CardView
+          data={processedData}
+          columns={columns}
+          selectable={selectable}
+          selectedRows={selectedRows}
+          onSelectionChange={onSelectionChange}
+          onView={onView}
+          viewActionLabel={viewActionLabel}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          emptyMessage={emptyMessage}
+          rowKey={rowKey}
+          theme={theme}
+        />
+      ) : (
       <div className="overflow-x-auto rounded-lg border border-gray-200">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className={theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'}>
@@ -297,7 +317,7 @@ const DataTable = <T extends BaseEntity>({
                           onClick={() => onView(row)} 
                           className="inline-flex items-center px-2 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-medium transition"
                         >
-                            Ver
+                            {viewActionLabel}
                         </button>
                       )}
                       {onEdit && (
@@ -324,6 +344,7 @@ const DataTable = <T extends BaseEntity>({
           </tbody>
         </table>
       </div>
+      )}
 
       {pagination && (
         <div className="mt-4 flex justify-between items-center text-sm">

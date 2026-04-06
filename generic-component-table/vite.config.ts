@@ -7,7 +7,16 @@ import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'; // Inyecta C
 export default defineConfig({
   plugins: [
     react(),
-    dts({ insertTypesEntry: true, include: ['src'],  }), // Asegura que los tipos se generen
+    dts({
+      insertTypesEntry: true,
+      include: ['src'],
+      tsconfigPath: './tsconfig.app.json',
+      compilerOptions: {
+        noEmit: false,
+        declaration: true,
+        declarationMap: false,
+      },
+    }),
     cssInjectedByJsPlugin(), // Inyecta el CSS automáticamente
   ],
   build: {
